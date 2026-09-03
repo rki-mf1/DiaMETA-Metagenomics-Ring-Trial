@@ -1,0 +1,4 @@
+analysis_id	sample_id	query_id	status	tax_id	score	score_type	comment
+LAB01_A01	DATASET_01	A00123:42:H3V5YDSX7:1:1101:1000:1000	classified	562	0.984	classifier_confidence	
+LAB01_A01	DATASET_01	A00123:42:H3V5YDSX7:1:1101:1000:1001	unclassified	0			
+LAB01_A01	DATASET_01	A00123:42:H3V5YDSX7:1:1101:1000:1002	excluded_preclassification	0			host depletion

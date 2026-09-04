@@ -3,7 +3,7 @@
 ## 1. Scope
 
 This document defines the metadata and taxonomic read-classification output to
-be submitted for the 2026 computational metagenomics ring trial. Its purpose is
+be submitted for the 2026/2027 computational metagenomics ring trial. Its purpose is
 to make workflows and results comparable without prescribing a particular
 classifier, database, or pipeline.
 

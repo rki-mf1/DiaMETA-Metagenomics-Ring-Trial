@@ -48,8 +48,11 @@ filtered for human reads by the organizers.
    analysis. You may use
    [`scripts/convert_read2tax.py`](scripts/convert_read2tax.py) or generate the
    standardized format directly (see example).
-5. Validate every `read2tax` file against the corresponding organiser-provided
-   query manifest.
+5. Validate every `read2tax` file with
+   [`scripts/convert_read2tax.py`](scripts/convert_read2tax.py) against the
+   corresponding dataset-specific query manifest in `manifests/`. Alternative
+   validation software may be used, but the submitted files must satisfy the
+   rules defined in [`docs/reporting_specification.md`](docs/reporting_specification.md).
 6. Submit the completed workbook, `read2tax` files, and SHA-256 checksums through
    the submission route specified by the organisers.
 

@@ -1,11 +1,11 @@
-# Metagenomics Computational Ring Trial 2026
+# DiaMETA-Net Metagenomics Computational Ring Trial 2026/2027
 
 This repository contains the reporting templates, format specification, example
-files, query manifests, and validation utilities for the 2026 computational
+files, query manifests, and validation utilities for the 2026/2207 computational
 metagenomics ring trial organised by the Friedrich-Loeffler-Institut (FLI) and
 the Robert Koch Institute (RKI).
 
-The aim is to compare the taxonomic classification results produced by the
+**The aim** is to compare the taxonomic classification results produced by the
 participants' usual metagenomics workflows. There are no prescribed analysis
 tools. Participants should document the software, versions, parameters,
 databases, and relevant filtering steps sufficiently to make the results
@@ -15,9 +15,9 @@ interpretable and reproducible.
 
 | Milestone | Date |
 | --- | --- |
-| Start of the computational ring trial | 1 March 2026 |
-| Submission of results | 31 May 2026 |
-| Joint results workshop at FLI | September 2026 |
+| Start of the computational ring trial | 1 January 2027 |
+| Submission of results | 30 June 2027 or earlier |
+| Joint results workshop at FLI | September 2027 |
 
 ## Datasets
 
@@ -26,13 +26,16 @@ communicated by the organisers:
 
 | Dataset ID | Sequencing | Query unit used for reporting |
 | --- | --- | --- |
-| `DATASET_01` | Illumina | One fragment for paired-end data; one read for single-end data |
-| `DATASET_02` | Illumina | One fragment for paired-end data; one read for single-end data |
-| `DATASET_03` | Illumina | One fragment for paired-end data; one read for single-end data |
+| `DATASET_01` | Illumina | One fragment for paired-end data |
+| `DATASET_02` | Illumina | One fragment for paired-end data |
+| `DATASET_03` | Illumina | One fragment for paired-end data |
 | `DATASET_04` | Oxford Nanopore | One read |
 
 Sequencing files are not stored in this repository. Please verify all downloaded
 files against the checksums supplied by the organisers.
+
+**Note**: The data was kindly provided by DiaMETA-Net members and additionally 
+filtered for human reads by the organizers. 
 
 ## Quick start
 
@@ -44,7 +47,7 @@ files against the checksums supplied by the organisers.
 4. Generate one standardized `read2tax` result file for each dataset and
    analysis. You may use
    [`scripts/convert_read2tax.py`](scripts/convert_read2tax.py) or generate the
-   standardized format directly.
+   standardized format directly (see example).
 5. Validate every `read2tax` file against the corresponding organiser-provided
    query manifest.
 6. Submit the completed workbook, `read2tax` files, and SHA-256 checksums through
@@ -66,6 +69,7 @@ Detailed requirements are defined in
 │   └── query_manifest_example.tsv
 ├── scripts/
 │   └── convert_read2tax.py
+│   └── create_query_manifest.py
 ├── manifests/
 │   ├── DATASET_01.query_manifest.tsv.gz
 │   ├── DATASET_02.query_manifest.tsv.gz
@@ -116,7 +120,7 @@ pair. For Nanopore data, one `query_id` represents one read.
 
 ## Conversion examples
 
-The conversion helper supports Kraken2, Centrifuge, Kaiju, and generic
+The conversion helper supports `Kraken2`, `Centrifuge`, `Kaiju`, and generic
 two-column TSV output. For example:
 
 ```bash
@@ -143,6 +147,8 @@ python scripts/convert_read2tax.py \
 
 Run `python scripts/convert_read2tax.py --help` for all options.
 
+In case your output format is not supported and you need help with the conversion, reach out to the organizers or directly write an [issue](https://github.com/rki-mf1/DiaMETA-Metagenomics-Ring-Trial/issues) here so we can update the script to support you. 
+
 > [!IMPORTANT]
 > The converter deliberately stops when several classifier records map to the
 > same benchmark query. This commonly occurs when paired mates were classified
@@ -159,12 +165,42 @@ in `CHANGELOG.md`.
 ## Questions and submission
 
 General questions that may be relevant to all participants can be raised through
-the repository's issue tracker, if enabled. Questions involving confidential
-sample information, participant-specific results, or file transfer should be
-sent directly to the organisers:
+the repository's [issue tracker](https://github.com/rki-mf1/DiaMETA-Metagenomics-Ring-Trial/issues). 
+Questions involving confidential sample information, participant-specific results, or file 
+transfer should be sent directly to the organisers.
 
-- Dirk Höper, FLI: `Dirk.Hoeper@fli.de`
-- Andrea Thürmer, RKI: `thuermera@rki.de`
+Files larger than 5 MB should not be sent by email. Contact the organisers for an upload link.
 
-Files larger than 5 MB should not be sent by email. Contact the organisers for
-an upload link.
+## Generation of sample manifest files
+
+For the organizers, nothing needs to be done here by the participants. 
+
+For all metagenomic datasets, use batch mode. Create a `datasets.tsv` outside the public repository or adapt paths locally:
+
+```tsv
+sample_id	read1	read2	output_manifest
+DATASET_01	data/DATASET_01_R1.fastq.gz	data/DATASET_01_R2.fastq.gz	manifests/DATASET_01.query_manifest.tsv.gz
+DATASET_02	data/DATASET_02_R1.fastq.gz	data/DATASET_02_R2.fastq.gz	manifests/DATASET_02.query_manifest.tsv.gz
+DATASET_03	data/DATASET_03_R1.fastq.gz	data/DATASET_03_R2.fastq.gz	manifests/DATASET_03.query_manifest.tsv.gz
+DATASET_04	data/DATASET_04.fastq.gz		manifests/DATASET_04.query_manifest.tsv.gz
+```
+
+Run:
+
+```bash
+python scripts/create_query_manifest.py \
+  --config datasets.tsv \
+  --checksum-file manifests/checksums.sha256
+```
+
+The script:
+
+* supports plain and gzip-compressed FASTQ;
+* validates FASTQ structure and sequence/quality lengths;
+* verifies that paired FASTQs are synchronized and equally long;
+* removes terminal `/1` and `/2` for paired `query_id` values;
+* detects duplicate query IDs using disk-backed SQLite by default;
+* produces deterministic `.tsv.gz` manifests;
+* calculates SHA-256 checksums for all input FASTQs and generated manifests;
+* refuses to overwrite existing files unless `--force` is supplied; and
+* reports progress every million reads.
